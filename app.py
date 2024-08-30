@@ -13,6 +13,8 @@ import seaborn as sns
 # Initialize session state for conversation
 if 'messages' not in st.session_state:
     st.session_state['messages'] = []
+if 'file_content' not in st.session_state:
+    st.session_state['file_content'] = None
 
 # Function to read different file types
 def read_file(file):
@@ -57,96 +59,100 @@ with st.sidebar:
         st.warning("Please enter your Anthropics API key to proceed.")
     st.markdown("---")
     st.info(
-        "You can obtain your API key from [Anthropic](https://www.anthropic.com/)."
+        "You can obtain your API key from [Anthropic](https://console.anthropic.com/)."
     )
 
-# File upload widget
+# File upload widget with spinner
 uploaded_file = st.file_uploader("📂 Upload a file", type=None)
 
 if uploaded_file:
-    if not api_key:
-        st.error("Please enter your Anthropic API key in the sidebar to proceed.")
-    else:
-        file_content = read_file(uploaded_file)
-
-        if file_content is not None:
-            st.subheader("📄 File Content Preview")
-            st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
-
-            st.markdown("---")
-            st.subheader("💬 Chat about your file")
-
-            # Text input for user question
-            st.markdown("---")
-            st.subheader("💡 Suggested Questions")
-            suggested_questions = [
-                "What is the main topic of this document?",
-                "Can you summarize the key points?",
-                "Are there any important dates or numbers mentioned?",
-                "What are the main entities or people discussed?",
-                "Can you extract any relevant statistics or data?"
-            ]
-            selected_question = st.selectbox("Choose a question or type your own:", [""] + suggested_questions)
-            user_question = st.text_input("Ask a question about your file:", value=selected_question)
-
-            if user_question:
-                with st.spinner("Generating response..."):
-                    try:
-                        client = anthropic.Anthropic(api_key=api_key)
-
-                        # Prepare system messages
-                        system_messages = [
-                            {
-                                "type": "text",
-                                "text": "You are an AI assistant specializing in analyzing various types of documents and extracting insights. The user has uploaded a file, and you should help them understand and analyze its content."
-                            },
-                            {
-                                "type": "text",
-                                "text": f"Here is a preview of the file content:\n\n{file_content[:1000]}...",
-                                "cache_control": {"type": "ephemeral"}
-                            }
-                        ]
-
-                        if isinstance(file_content, pd.DataFrame):
-                            system_messages.append({
-                                "type": "text",
-                                "text": f"This is a tabular dataset with the following properties:\nColumns: {', '.join(file_content.columns)}\nShape: {file_content.shape}\n\nBasic statistics:\n{file_content.describe().to_string()}",
-                                "cache_control": {"type": "ephemeral"}
-                            })
-
-                        # Append user message
-                        st.session_state['messages'].append({"role": "user", "content": user_question})
-
-                        response = client.beta.prompt_caching.messages.create(
-                            model="claude-3-5-sonnet-20240620",
-                            max_tokens=2048,
-                            system=system_messages,
-                            messages=st.session_state['messages']
-                        )
-
-                        if response.content:
-                            ai_response = response.content[0].text.strip()
-                            st.session_state['messages'].append({"role": "assistant", "content": ai_response})
-                            st.write("**AI Response:**")
-                            st.write(ai_response)
-                        else:
-                            st.write("**AI:** No response received.")
-                    except anthropic.APIError as e:
-                        st.error(f"An error occurred with the API: {e}")
-                    except Exception as e:
-                        st.error(f"An unexpected error occurred: {e}")
-
-            if "generate a visualization" in user_question.lower():
-                try:
-                    df = pd.read_csv(StringIO(file_content)) if isinstance(file_content, str) else pd.DataFrame(file_content)
-                    fig, ax = plt.subplots()
-                    sns.heatmap(df.corr(), ax=ax)
-                    st.pyplot(fig)
-                except Exception as e:
-                    st.error(f"Unable to generate visualization: {e}")
-
+    with st.spinner("Processing file..."):
+        if not api_key:
+            st.error("Please enter your Anthropic API key in the sidebar to proceed.")
         else:
-            st.error("The file could not be read. Please try a different file format.")
+            st.session_state['file_content'] = read_file(uploaded_file)
+            file_content = st.session_state['file_content']
+
+            if file_content is not None:
+                st.subheader("📄 File Content Preview")
+                st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
+
+                st.markdown("---")
+                st.subheader("💬 Chat about your file")
+
+                # Text input for user question
+                st.markdown("---")
+                st.subheader("💡 Suggested Questions")
+                suggested_questions = [
+                    "What is the main topic of this document?",
+                    "Can you summarize the key points?",
+                    "Are there any important dates or numbers mentioned?",
+                    "What are the main entities or people discussed?",
+                    "Can you extract any relevant statistics or data?"
+                ]
+                selected_question = st.selectbox("Choose a question or type your own:", [""] + suggested_questions)
+                user_question = st.text_input("Ask a question about your file:", value=selected_question)
+
+                # Button to submit the question
+                if st.button("Submit Question"):
+                    if user_question:
+                        with st.spinner("Generating response..."):
+                            try:
+                                client = anthropic.Anthropic(api_key=api_key)
+
+                                # Prepare system messages
+                                system_messages = [
+                                    {
+                                        "type": "text",
+                                        "text": "You are an AI assistant specializing in analyzing various types of documents and extracting insights. The user has uploaded a file, and you should help them understand and analyze its content."
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": f"Here is a preview of the file content:\n\n{file_content[:1000]}...",
+                                        "cache_control": {"type": "ephemeral"}
+                                    }
+                                ]
+
+                                if isinstance(file_content, pd.DataFrame):
+                                    system_messages.append({
+                                        "type": "text",
+                                        "text": f"This is a tabular dataset with the following properties:\nColumns: {', '.join(file_content.columns)}\nShape: {file_content.shape}\n\nBasic statistics:\n{file_content.describe().to_string()}",
+                                        "cache_control": {"type": "ephemeral"}
+                                    })
+
+                                # Append user message
+                                st.session_state['messages'].append({"role": "user", "content": user_question})
+
+                                response = client.beta.prompt_caching.messages.create(
+                                    model="claude-3-5-sonnet-20240620",
+                                    max_tokens=2048,
+                                    system=system_messages,
+                                    messages=st.session_state['messages']
+                                )
+
+                                if response.content:
+                                    ai_response = response.content[0].text.strip()
+                                    st.session_state['messages'].append({"role": "assistant", "content": ai_response})
+                                    st.write("**AI Response:**")
+                                    st.write(ai_response)
+                                else:
+                                    st.write("**AI:** No response received.")
+                            except anthropic.APIError as e:
+                                st.error(f"An error occurred with the API: {e}")
+                            except Exception as e:
+                                st.error(f"An unexpected error occurred: {e}")
+
+                if "generate a visualization" in user_question.lower():
+                    try:
+                        df = pd.read_csv(StringIO(file_content)) if isinstance(file_content, str) else pd.DataFrame(file_content)
+                        fig, ax = plt.subplots()
+                        sns.heatmap(df.corr(), ax=ax)
+                        st.pyplot(fig)
+                    except Exception as e:
+                        st.error(f"Unable to generate visualization: {e}")
+
+            else:
+                st.error("The file could not be read. Please try a different file format.")
 else:
     st.info("Please upload a file to begin.")
 
@@ -163,5 +169,6 @@ if st.session_state['messages']:
 # Option to clear conversation
 if st.button("🧹 Clear Conversation"):
     st.session_state['messages'] = []
+    st.session_state['file_content'] = None
     st.success("Conversation history cleared.")
     st.experimental_rerun()
