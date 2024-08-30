@@ -1,0 +1,11 @@
+streamlit==1.24.1
+pandas==1.5.3
+pdfplumber==0.10.0
+python-docx==0.8.11
+PyPDF2==3.0.1
+anthropic==0.4.0
+openpyxl==3.1.2
+chardet==5.1.0   # For character encoding detection
+numpy==1.24.3    # In case you perform numerical operations
+altair==4.2.2    # For data visualization if needed
+jsonschema==4.19.0 # For JSON validation and handling
