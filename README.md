@@ -1,5 +1,7 @@
 # 📄 File Conversational Assistant
 
+![image](Flowchart.png)
+
 ## Overview
 The **File Conversational Assistant** is a Streamlit-based web application that allows users to upload any type of file (PDF, DOCX, Excel, CSV, JSON, etc.) and interact with the content via a conversational AI interface powered by Anthropics. Users can ask questions related to the uploaded file, and the AI will generate responses based on the file's content.
 
