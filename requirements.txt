@@ -9,3 +9,4 @@ numpy    # In case you perform numerical operations
 altair==4.2.2    # For data visualization if needed
 jsonschema==4.19.0 # For JSON validation and handling
 streamlit
+matplotlib
