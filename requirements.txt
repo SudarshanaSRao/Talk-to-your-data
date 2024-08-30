@@ -1,5 +1,5 @@
 streamlit
-python
+python<3.5
 pandas
 pdfplumber==0.10.0
 python-docx==0.8.11
