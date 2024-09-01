@@ -45,7 +45,7 @@ def read_file(file):
 # Streamlit UI
 st.set_page_config(page_title="🗣️Data Visualization Assistant", layout="wide")
 st.title("🗣️Data Visualization Assistant")
-st.write("Upload any file and ask questions about its content!")
+st.write("Talk to your data -- Upload any file and ask questions about its content!")
 
 # Sidebar for API Key Input
 with st.sidebar:
