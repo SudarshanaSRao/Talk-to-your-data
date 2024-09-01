@@ -24,7 +24,7 @@ def read_file(file):
     try:
         if file_type in ["text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]:
             df = pd.read_csv(file) if file_type == "text/csv" else pd.read_excel(file)
-            return df.to_string()
+            return df
         elif file_extension == '.txt':
             return file.getvalue().decode('utf-8')
         elif file_extension == '.pdf':
@@ -43,20 +43,20 @@ def read_file(file):
         return None
 
 # Streamlit UI
-st.set_page_config(page_title="File Conversational Assistant", layout="wide")
-st.title("📄 File Conversational Assistant")
+st.set_page_config(page_title="🗣️Data Visualization Assistant", layout="wide")
+st.title("🗣️Data Visualization Assistant")
 st.write("Upload any file and ask questions about its content!")
 
 # Sidebar for API Key Input
 with st.sidebar:
     st.header("🔐 API Configuration")
     api_key = st.text_input(
-        "Enter your Anthropics API Key",
+        "Enter your Anthropic's API Key",
         type="password",
         placeholder="sk-...",
     )
     if not api_key:
-        st.warning("Please enter your Anthropics API key to proceed.")
+        st.warning("Please enter your Anthropic's API key to proceed.")
     st.markdown("---")
     st.info(
         "You can obtain your API key from [Anthropic](https://console.anthropic.com/)."
@@ -74,8 +74,11 @@ if uploaded_file:
             file_content = st.session_state['file_content']
 
             if file_content is not None:
-                st.subheader("📄 File Content Preview")
-                st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
+                st.subheader("📄 File contents preview")
+                if isinstance(file_content, pd.DataFrame):
+                    st.dataframe(file_content)
+                else:
+                    st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
 
                 st.markdown("---")
                 st.subheader("💬 Chat about your file")
@@ -88,13 +91,14 @@ if uploaded_file:
                     "Can you summarize the key points?",
                     "Are there any important dates or numbers mentioned?",
                     "What are the main entities or people discussed?",
-                    "Can you extract any relevant statistics or data?"
+                    "Can you extract any relevant statistics or data?",
+                    "Can you generate a graph showing the correlation between columns?"
                 ]
-                selected_question = st.selectbox("Choose a question or type your own:", [""] + suggested_questions)
+                selected_question = st.selectbox("Choose a question or type your own in the second (below) dialogue box:", [""] + suggested_questions)
                 user_question = st.text_input("Ask a question about your file:", value=selected_question)
 
                 # Button to submit the question
-                if st.button("Submit Question"):
+                if st.button("Submit"):
                     if user_question:
                         with st.spinner("Generating response..."):
                             try:
@@ -104,11 +108,11 @@ if uploaded_file:
                                 system_messages = [
                                     {
                                         "type": "text",
-                                        "text": "You are an AI assistant specializing in analyzing various types of documents and extracting insights. The user has uploaded a file, and you should help them understand and analyze its content."
+                                        "text": "Assume you are a proficient Data Scientist specializing in analyzing various types of documents, extracting insights, and visualizing the data. The user has uploaded a file, and you should help them understand and analyze its content."
                                     },
                                     {
                                         "type": "text",
-                                        "text": f"Here is a preview of the file content:\n\n{file_content[:1000]}...",
+                                        "text": f"Here is a preview of the file content:\n\n{str(file_content)[:1000]}...",
                                         "cache_control": {"type": "ephemeral"}
                                     }
                                 ]
@@ -135,21 +139,32 @@ if uploaded_file:
                                     st.session_state['messages'].append({"role": "assistant", "content": ai_response})
                                     st.write("**AI Response:**")
                                     st.write(ai_response)
+
+                                    # Check if AI response suggests creating a visualization
+                                    if "generate" in user_question.lower() or "plot" in user_question.lower():
+                                        # Example: Generate correlation heatmap if requested
+                                        if "correlation" in user_question.lower():
+                                            fig, ax = plt.subplots()
+                                            sns.heatmap(file_content.corr(), annot=True, cmap="coolwarm", ax=ax)
+                                            st.pyplot(fig)
+
+                                        # Example: Generate bar plot
+                                        if "bar" in user_question.lower() or "histogram" in user_question.lower():
+                                            fig, ax = plt.subplots()
+                                            file_content.plot(kind='bar', ax=ax)
+                                            st.pyplot(fig)
+
+                                        # Example: Generate scatter plot
+                                        if "scatter" in user_question.lower():
+                                            fig, ax = plt.subplots()
+                                            sns.scatterplot(data=file_content, ax=ax)
+                                            st.pyplot(fig)
                                 else:
                                     st.write("**AI:** No response received.")
                             except anthropic.APIError as e:
                                 st.error(f"An error occurred with the API: {e}")
                             except Exception as e:
                                 st.error(f"An unexpected error occurred: {e}")
-
-                if "generate a visualization" in user_question.lower():
-                    try:
-                        df = pd.read_csv(StringIO(file_content)) if isinstance(file_content, str) else pd.DataFrame(file_content)
-                        fig, ax = plt.subplots()
-                        sns.heatmap(df.corr(), ax=ax)
-                        st.pyplot(fig)
-                    except Exception as e:
-                        st.error(f"Unable to generate visualization: {e}")
 
             else:
                 st.error("The file could not be read. Please try a different file format.")
@@ -167,7 +182,7 @@ if st.session_state['messages']:
             st.markdown(f"**AI:** {msg['content']}")
 
 # Option to clear conversation
-if st.button("🧹 Clear Conversation"):
+if st.button("🧹 Clear conversation"):
     st.session_state['messages'] = []
     st.session_state['file_content'] = None
     st.success("Conversation history cleared.")
