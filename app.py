@@ -186,4 +186,4 @@ if st.button("🧹 Clear conversation"):
     st.session_state['messages'] = []
     st.session_state['file_content'] = None
     st.success("Conversation history cleared.")
-    st.experimental_rerun()
+    #st.experimental_rerun()
