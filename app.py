@@ -199,3 +199,5 @@ if st.session_state['messages']:
         st.session_state['file_content'] = None
         st.success("Conversation history cleared.")
         st.experimental_rerun()
+else:
+    st.info("There are no conversations started to clear.")
