@@ -50,7 +50,7 @@ def read_file(file):
         return None
 
 # Streamlit UI
-st.set_page_config(page_title = "🗣️Data Visualization Assistant", layout = "wide")
+st.set_page_config(page_title="🗣️Data Visualization Assistant", layout="wide")
 st.title("🗣️Data Visualization Assistant")
 st.write("Talk to your data -- Upload any file and ask questions about its content!")
 
@@ -59,8 +59,8 @@ with st.sidebar:
     st.header("🔐 API Configuration")
     api_key = st.text_input(
         "Enter your Anthropic's API Key",
-        type = "password",
-        placeholder = "sk-...",
+        type="password",
+        placeholder="sk-...",
     )
     if not api_key:
         st.warning("Please enter your Anthropic's API key to proceed.")
@@ -70,7 +70,7 @@ with st.sidebar:
     )
 
 # File upload widget with spinner
-uploaded_file = st.file_uploader("📂 Upload a file", type = None)
+uploaded_file = st.file_uploader("📂 Upload a file", type=None)
 
 if uploaded_file:
     with st.spinner("Processing file..."):
@@ -103,14 +103,15 @@ if uploaded_file:
                     "Can you generate a graph showing the correlation between columns?"
                 ]
                 selected_question = st.selectbox("Choose a question or type your own in the second (below) dialogue box:", [""] + suggested_questions)
-                user_question = st.text_input("Ask a question about your file:", value = selected_question)
+                user_question = st.text_input("Ask a question about your file:", value=selected_question)
+                
                 # Button to submit the question
                 if st.button("Submit"):
                     if user_question:
                         with st.spinner("Generating response..."):
                             
                             try:
-                                client = anthropic.Anthropic(api_key = api_key)
+                                client = anthropic.Anthropic(api_key=api_key)
                                 
                                 # Prepare system messages
                                 system_messages = [
@@ -134,10 +135,10 @@ if uploaded_file:
                                 # Append user message
                                 st.session_state['messages'].append({"role": "user", "content": user_question})
                                 response = client.beta.prompt_caching.messages.create(
-                                    model = "claude-3-5-sonnet-20240620",
-                                    max_tokens = 2048,
-                                    system = system_messages,
-                                    messages = st.session_state['messages']
+                                    model="claude-3-5-sonnet-20240620",
+                                    max_tokens=2048,
+                                    system=system_messages,
+                                    messages=st.session_state['messages']
                                 )
 
                                 if response.content:
@@ -151,26 +152,30 @@ if uploaded_file:
                                         # Example: Generate correlation heatmap if requested
                                         if "correlation" in user_question.lower():
                                             fig, ax = plt.subplots()
-                                            sns.heatmap(file_content.corr(), annot = True, camp = "coolwarm", ax = ax)
+                                            sns.heatmap(file_content.corr(), annot=True, cmap="coolwarm", ax=ax)
                                             st.pyplot(fig)
 
                                         # Example: Generate bar plot
                                         if "bar" in user_question.lower() or "histogram" in user_question.lower():
                                             fig, ax = plt.subplots()
-                                            file_content.plot(kind = 'bar', ax = ax)
+                                            file_content.plot(kind='bar', ax=ax)
                                             st.pyplot(fig)
 
                                         # Example: Generate scatter plot
                                         if "scatter" in user_question.lower():
                                             fig, ax = plt.subplots()
-                                            sns.scatterplot(data = file_content, ax = ax)
+                                            sns.scatterplot(data=file_content, ax=ax)
                                             st.pyplot(fig)
                                 
                                 else:
                                     st.write("**AI:** No response received.")
                             
                             except anthropic.APIError as e:
-                                st.error(f"An error occurred with the API: {e}")
+                                # Custom handling for insufficient credits
+                                if 'Your credit balance is too low' in str(e):
+                                    st.error("Not enough API credits. Please go to [Plans & Billing](https://console.anthropic.com/) to upgrade or purchase credits.")
+                                else:
+                                    st.error(f"An error occurred with the API: {e}")
                             
                             except Exception as e:
                                 st.error(f"An unexpected error occurred: {e}")
@@ -189,7 +194,7 @@ if st.button("🧹 Clear conversation"):
         st.success("Conversation history cleared.")
     else:
         # Display message if there is no conversation to clear
-        st.warning("There are no conversations started to clear.")
+        st.warning("There are no conversations to clear. Please start one :)")
 
 # Display conversation history if available
 if st.session_state['messages']:
