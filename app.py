@@ -107,7 +107,7 @@ if uploaded_file:
                     "Can you generate a graph showing the correlation between columns?"
                 ]
                 selected_question = st.selectbox("Choose a question or type your own in the second (below) dialogue box:", [""] + suggested_questions)
-                user_question = st.text_input("Ask a question about your file:", value=selected_question)
+                user_question = st.text_input("Ask a question about your file:", value = selected_question)
                 
                 # Button to submit the question
                 if st.button("Submit"):
@@ -115,7 +115,7 @@ if uploaded_file:
                         with st.spinner("Generating response..."):
                             
                             try:
-                                client = anthropic.Anthropic(api_key=api_key)
+                                client = anthropic.Anthropic(api_key = api_key)
                                 
                                 # Prepare system messages
                                 system_messages = [
