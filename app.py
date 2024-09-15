@@ -179,10 +179,10 @@ if uploaded_file:
                                 if 'Your credit balance is too low' in str(e):
                                     st.error("Not enough API credits. Please go to [Plans & Billing](https://console.anthropic.com/) to upgrade or purchase credits.")
                                 else:
-                                    st.error(f"An error occurred with the API: {e}")
+                                    st.error(f"An error occurred with the API secret key (perhaps it's expired?): {e}")
                             
                             except Exception as e:
-                                st.error(f"An unexpected error occurred: {e}")
+                                st.error(f"Please ensure that you have entered the correct API secret key in the sidebar: {e}")
 
             else:
                 st.error("The file could not be read. Please try a different file format.")
