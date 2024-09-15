@@ -63,7 +63,7 @@ with st.sidebar:
         placeholder="sk-...",
     )
     if not api_key:
-        st.warning("Please enter your Anthropic's API secret key in the sidebar to proceed.")
+        st.warning("Please enter your Anthropic's API secret key to proceed.")
     st.markdown("---")
     st.info(
         "You can obtain your API secret key from [Anthropic](https://console.anthropic.com/)."
