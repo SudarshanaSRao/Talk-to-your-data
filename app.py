@@ -180,7 +180,18 @@ if uploaded_file:
 else:
     st.info("Please upload a file to begin.")
 
-# Display conversation history
+# Check if clear conversation button is clicked
+if st.button("🧹 Clear conversation"):
+    if st.session_state['messages']:
+        # Clear the conversation if there are messages
+        st.session_state['messages'].clear()
+        st.session_state['file_content'] = None
+        st.success("Conversation history cleared.")
+    else:
+        # Display message if there is no conversation to clear
+        st.warning("There are no conversations started to clear.")
+
+# Display conversation history if available
 if st.session_state['messages']:
     st.markdown("---")
     st.subheader("🗨️ Conversation History")
@@ -189,14 +200,5 @@ if st.session_state['messages']:
     for msg in st.session_state['messages']:
         if msg['role'] == 'user':
             st.markdown(f"**You:** {msg['content']}")
-        
         else:
             st.markdown(f"**AI:** {msg['content']}")
-
-    # Show the Clear Conversation button only if there's a conversation
-    if st.button("🧹 Clear conversation"):
-        st.session_state['messages'].clear()
-        st.session_state['file_content'] = None
-        st.success("Conversation history cleared.")
-else:
-    st.info("There are no conversations started to clear.")
