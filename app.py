@@ -24,11 +24,11 @@ def read_file(file):
 
     try:
         if file_type in ["text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]:
-            df = pd.read_csv(file) if file_type == "text/csv" else pd.read_excel(file)
+            df = pd.read_csv(file, encoding='utf-8') if file_type == "text/csv" else pd.read_excel(file)
             return df
         
         elif file_extension == '.txt':
-            return file.getvalue().decode('utf-8')
+            return file.getvalue().decode('utf-8')  # Ensure text is decoded as UTF-8
         
         elif file_extension == '.pdf':
             pdf_reader = PdfReader(file)
@@ -43,7 +43,7 @@ def read_file(file):
             return "\n".join([para.text for para in doc.paragraphs])
         
         else:
-            return file.getvalue().decode('utf-8')
+            return file.getvalue().decode('utf-8')  # Default decoding as UTF-8
     
     except Exception as e:
         st.error(f"Error reading file: {e}")
@@ -87,7 +87,11 @@ if uploaded_file:
                 if isinstance(file_content, pd.DataFrame):
                     st.dataframe(file_content)
                 else:
-                    st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
+                    # Ensure proper UTF-8 encoding while displaying text
+                    try:
+                        st.text(file_content[:1000] + "..." if len(file_content) > 1000 else file_content)
+                    except UnicodeEncodeError:
+                        st.text(file_content.encode('utf-8', 'replace').decode('utf-8')[:1000] + "..." if len(file_content) > 1000 else file_content.encode('utf-8', 'replace').decode('utf-8'))
 
                 st.markdown("---")
                 st.subheader("💬 Chat about your file")
@@ -194,7 +198,7 @@ if st.button("🧹 Clear conversation"):
         st.success("Conversation history cleared.")
     else:
         # Display message if there is no conversation to clear
-        st.warning("There are no conversations to clear. Please start one :)")
+        st.warning("There are no conversations started to clear.")
 
 # Display conversation history if available
 if st.session_state['messages']:
