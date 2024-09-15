@@ -180,10 +180,10 @@ if uploaded_file:
                                     st.error("Not enough API credits. Please go to [Plans & Billing](https://console.anthropic.com/) to upgrade or purchase credits.")
                                 
                                 elif 'invalid x-api-key' in str(e):
-                                    st.error(f"An error occurred with the API secret key- Please ensure that you have entered the correct API secret key in the sidebar or you have entered an expired API secret key. Kindly visit [Anthropic API secret key](https://console.anthropic.com/) to resolve the issue: {e}")
+                                    st.error(f"An error occurred with the API secret key- Please ensure you have entered the correct API secret key in the sidebar or you have entered an expired API secret key. Kindly visit [Anthropic API secret key](https://console.anthropic.com/) to resolve the issue: {e}")
                             
                             except Exception as e:
-                                st.error(f"An unexpected error occurred with your API secret key: {e}")
+                                st.error(f"An unexpected error occurred with your API secret key, please ensure you have entered the correct API secret key in the sidebar: {e}")
 
             else:
                 st.error("The file could not be read. Please try a different file format.")
