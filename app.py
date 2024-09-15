@@ -63,10 +63,10 @@ with st.sidebar:
         placeholder="sk-...",
     )
     if not api_key:
-        st.warning("Please enter your Anthropic's API key to proceed.")
+        st.warning("Please enter your Anthropic's API secret key in the sidebar to proceed.")
     st.markdown("---")
     st.info(
-        "You can obtain your API key from [Anthropic](https://console.anthropic.com/)."
+        "You can obtain your API secret key from [Anthropic](https://console.anthropic.com/)."
     )
 
 # File upload widget with spinner
