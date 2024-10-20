@@ -94,7 +94,7 @@ if uploaded_file:
                         st.text(file_content.encode('utf-8', 'replace').decode('utf-8')[:1000] + "..." if len(file_content) > 1000 else file_content.encode('utf-8', 'replace').decode('utf-8'))
 
                 st.markdown("---")
-                st.subheader("💬 Chat about your file")
+                st.subheader("⌨️ Chat about your file")
                 # Text input for user question
                 st.markdown("---")
                 st.subheader("💡 Suggested Questions")
@@ -121,7 +121,7 @@ if uploaded_file:
                                 system_messages = [
                                     {
                                         "type": "text",
-                                        "text": "Assume you are a proficient Data Scientist specializing in analyzing various types of documents, extracting insights, and visualizing the data. The user has uploaded a file, and you should help them understand and analyze its content."
+                                        "text": "Assume you are a proficient Data Scientist specializing in analyzing various types of documents, extracting insights, and visualizing the data. The user has uploaded a file, and your task is to help them comprehend and analyze its content, offering detailed insights, trends, and visual representations where relevant."
                                     },
                                     {
                                         "type": "text",
