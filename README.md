@@ -2,7 +2,7 @@ https://github.com/user-attachments/assets/3edccc72-91c8-46af-b752-a48206ba75e8
 
 # 🗣️Data Visualization Assistant
 
-### [Medium blog](https://medium.com/@sudarshanasrao/introducing-the-file-conversational-assistant-revolutionizing-document-interaction-with-ai-bf878e5c9ed5)
+### [Medium blog](https://medium.com/@sudarshanasrao/introducing-the-file-conversational-assistant-revolutionizing-document-interaction-with-ai-bf878e5c9ed5) | [Project details](https://sudarshanasrao.github.io/portfolio/portfolio-1/)
 
 ![image](Flowchart.png)
 
