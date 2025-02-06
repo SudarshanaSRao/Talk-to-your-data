@@ -204,7 +204,7 @@ if st.button("🧹 Clear conversation"):
 # Display conversation history if available
 if st.session_state['messages']:
     st.markdown("---")
-    st.subheader("🗨️ Conversation History")
+    st.subheader("⌨️ Conversation History")
     
     # Display messages
     for msg in st.session_state['messages']:
