@@ -29,7 +29,7 @@ def terms_modal():
         if agree:
             st.session_state.accepted_terms = True
             st.success("Thank you — you may now use the app.")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("You must agree before continuing.")
 
@@ -240,4 +240,5 @@ if st.session_state['messages']:
             st.markdown(f"**You:** {msg['content']}")
         else:
             st.markdown(f"**AI:** {msg['content']}")
+
 
