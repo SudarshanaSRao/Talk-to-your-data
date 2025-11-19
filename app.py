@@ -10,6 +10,34 @@ import anthropic
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+TERMS_URL = "https://github.com/SudarshanaSRao/Talk-to-your-data/blob/main/privacy_and_terms.md"
+
+# Initialize acceptance state
+if "accepted_terms" not in st.session_state:
+    st.session_state.accepted_terms = False
+
+def terms_modal():
+    with st.empty().container():
+        st.markdown("### 🔒 Before You Continue")
+        st.write(
+            "To use this application, you must read and agree to our "
+            f"[**Privacy Policy & Terms of Use**]({TERMS_URL})."
+        )
+
+        agree = st.checkbox("I have read and agree to the Privacy Policy & Terms of Use")
+
+        if agree:
+            st.session_state.accepted_terms = True
+            st.success("Thank you — you may now use the app.")
+            st.experimental_rerun()
+        else:
+            st.warning("You must agree before continuing.")
+
+# Block entire app until accepted
+if not st.session_state.accepted_terms:
+    terms_modal()
+    st.stop()
+
 # Initialize session state for conversation
 if 'messages' not in st.session_state:
     st.session_state['messages'] = []
@@ -212,3 +240,4 @@ if st.session_state['messages']:
             st.markdown(f"**You:** {msg['content']}")
         else:
             st.markdown(f"**AI:** {msg['content']}")
+
